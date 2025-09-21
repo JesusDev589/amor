@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Una Flor Amarilla para Valeri</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(-45deg, #ff9a9e, #fecfef, #f6e58d, #ffbe76);
+            background-size: 400% 400%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            animation: gradientBG 20s ease infinite;
+            position: relative;
+        }
+
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            transition: opacity 1s ease-out;
+        }
+
+        .start-button {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            padding: 1rem 2.5rem;
+            cursor: pointer;
+            background: linear-gradient(135deg, #ffeb3b, #ffc107);
+            border: none;
+            border-radius: 50px;
+            color: #8b4513;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 193, 7, 0.6);
+        }
+        
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+            opacity: 0;
+            transition: opacity 1s ease-in 0.5s;
+            z-index: 10;
+        }
+
+        .visible {
+            opacity: 1 !important;
+        }
+        
+        .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.8rem;
+            font-weight: 700;
+            color: #d4af37;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+            animation: fadeInDown 1s ease-out;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            color: #8b4513;
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        
+        .flower-container {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            margin-top: 2rem;
+        }
+        
+        .flower {
+            width: 380px;
+            height: 380px;
+            position: relative;
+            margin: 2rem auto;
+        }
+
+        .stem {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            width: 15px;
+            height: 250px;
+            background: linear-gradient(to top, #4caf50, #689f38, #81c784);
+            border-radius: 7px;
+            transform-origin: bottom;
+            transform: translate(-50%) scaleY(0);
+            z-index: -1;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
+            animation: growStem 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1s forwards;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 60px;
+            height: 90px;
+            background: linear-gradient(45deg, #66bb6a, #81c784, #9ccc65);
+            border-radius: 0 100% 0 100%;
+            opacity: 0;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .leaf.left {
+            bottom: 150px;
+            left: -50px;
+            transform: rotate(-35deg) scale(0);
+            animation: growLeaf 1s ease-out 2.5s forwards;
+        }
+
+        .leaf.right {
+            bottom: 100px;
+            right: -50px;
+            transform: rotate(35deg) scaleX(-1) scale(0);
+            animation: growLeaf 1s ease-out 2.8s forwards;
+        }
+        
+        .petal {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(135deg, #ffe082, #ffd54f, #ffc107, #ffb300);
+            border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+            transform-origin: 50% 100%;
+            box-shadow: 
+                inset 0 0 20px rgba(255, 193, 7, 0.6),
+                0 8px 20px rgba(255, 152, 0, 0.4);
+            top: 50%;
+            left: 50%;
+            opacity: 0;
+            transform: translate(-50%, -100%) rotate(0deg) scale(0);
+            animation: openPetal 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            z-index: 1;
+        }
+
+        .petal.back {
+            background: linear-gradient(135deg, #ffc107, #ffab40, #ff9800);
+            width: 90px;
+            height: 130px;
+            z-index: 0;
+            transform: translate(-50%, -100%) rotate(var(--r)) scale(0) rotateX(15deg);
+            animation: openPetalBack 1.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        
+        .flower-container:hover .petal {
+            transform: translate(-50%, -100%) rotate(var(--r)) scale(1.1);
+            box-shadow: 
+                inset 0 0 25px rgba(255, 193, 7, 0.8), 
+                0 12px 30px rgba(255, 152, 0, 0.6);
+        }
+
+        .flower-container:hover .petal.back {
+             transform: translate(-50%, -100%) rotate(var(--r)) scale(1.08) rotateX(15deg);
+        }
+        
+        .petal:not(.back):nth-child(1) { --r: 0deg; animation-delay: 3s; }
+        .petal:not(.back):nth-child(2) { --r: 36deg; animation-delay: 3.2s; }
+        .petal:not(.back):nth-child(3) { --r: 72deg; animation-delay: 3.4s; }
+        .petal:not(.back):nth-child(4) { --r: 108deg; animation-delay: 3.6s; }
+        .petal:not(.back):nth-child(5) { --r: 144deg; animation-delay: 3.8s; }
+        .petal:not(.back):nth-child(6) { --r: 180deg; animation-delay: 4s; }
+        .petal:not(.back):nth-child(7) { --r: 216deg; animation-delay: 4.2s; }
+        .petal:not(.back):nth-child(8) { --r: 252deg; animation-delay: 4.4s; }
+        .petal:not(.back):nth-child(9) { --r: 288deg; animation-delay: 4.6s; }
+        .petal:not(.back):nth-child(10) { --r: 324deg; animation-delay: 4.8s; }
+
+        .petal.back:nth-child(1) { --r: 18deg; animation-delay: 3.1s; }
+        .petal.back:nth-child(2) { --r: 54deg; animation-delay: 3.3s; }
+        .petal.back:nth-child(3) { --r: 90deg; animation-delay: 3.5s; }
+        .petal.back:nth-child(4) { --r: 126deg; animation-delay: 3.7s; }
+        .petal.back:nth-child(5) { --r: 162deg; animation-delay: 3.9s; }
+        .petal.back:nth-child(6) { --r: 198deg; animation-delay: 4.1s; }
+        .petal.back:nth-child(7) { --r: 234deg; animation-delay: 4.3s; }
+        .petal.back:nth-child(8) { --r: 270deg; animation-delay: 4.5s; }
+        .petal.back:nth-child(9) { --r: 306deg; animation-delay: 4.7s; }
+        .petal.back:nth-child(10) { --r: 342deg; animation-delay: 4.9s; }
+        
+        .center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 90px;
+            height: 90px;
+            background: radial-gradient(circle at 35% 35%, #ff8f00, #e65100, #bf360c, #8d6e63);
+            border-radius: 50%;
+            box-shadow: 
+                inset 0 0 30px rgba(0,0,0,0.4),
+                0 8px 15px rgba(0,0,0,0.3);
+            animation: growCenter 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) 5s forwards;
+            z-index: 2;
+        }
+
+        .center::before {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 20%;
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle, rgba(255,255,255,0.9), transparent);
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        .final-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.2rem;
+            color: #fff;
+            background: rgba(255, 193, 7, 0.85);
+            padding: 2.5rem 4.5rem;
+            border-radius: 25px;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            border: 3px solid rgba(255, 235, 59, 0.7);
+        }
+
+        .love-messages {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 100;
+        }
+        
+        .love-message {
+            position: absolute;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.2rem;
+            color: #8b4513;
+            background: linear-gradient(135deg, rgba(255, 250, 205, 0.9), rgba(255, 240, 150, 0.8));
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            opacity: 0;
+            animation: matrixFall 20s linear infinite;
+            white-space: nowrap;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 223, 75, 0.6);
+            filter: brightness(1.1);
+        }
+        
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes growStem { from { transform: translate(-50%) scaleY(0); } to { transform: translate(-50%) scaleY(1); } }
+        @keyframes growLeaf { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+        @keyframes openPetal { from { opacity: 0; transform: translate(-50%, -100%) rotate(var(--r)) scale(0); } to { opacity: 1; transform: translate(-50%, -100%) rotate(var(--r)) scale(1); } }
+        @keyframes openPetalBack { from { opacity: 0; transform: translate(-50%, -100%) rotate(var(--r)) scale(0) rotateX(15deg); } to { opacity: 1; transform: translate(-50%, -100%) rotate(var(--r)) scale(1) rotateX(15deg); } }
+        @keyframes growCenter { from { transform: translate(-50%, -50%) scale(0); } to { transform: translate(-50%, -50%) scale(1); } }
+        @keyframes matrixFall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { transform: translateY(110vh); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .title { font-size: 3rem; }
+            .subtitle { font-size: 1rem; }
+            .flower { width: 300px; height: 300px; }
+            .petal { width: 70px; height: 100px; }
+            .petal.back { width: 80px; height: 110px; }
+            .center { width: 70px; height: 70px; }
+            .start-button { font-size: 2rem; }
+            .final-message { font-size: 2rem; padding: 1.5rem 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="start-screen" id="start-screen">
+        <button class="start-button" id="start-button">Haz clic aquí, Valeri 💖</button>
+    </div>
+
+    <div class="container" id="main-container">
+        <h1 class="title">Para ti, mi hermosa Valeri ✨</h1>
+        <p class="subtitle">Una flor que crece y florece, como mi amor por ti</p>
+        
+        <div class="flower-container" id="flower-container">
+            <div class="flower">
+                <div class="petal"></div><div class="petal"></div>
+                <div class="petal"></div><div class="petal"></div>
+                <div class="petal"></div><div class="petal"></div>
+                <div class="petal"></div><div class="petal"></div>
+                <div class="petal"></div><div class="petal"></div>
+                <div class="petal back"></div><div class="petal back"></div>
+                <div class="petal back"></div><div class="petal back"></div>
+                <div class="petal back"></div><div class="petal back"></div>
+                <div class="petal back"></div><div class="petal back"></div>
+                <div class="petal back"></div><div class="petal back"></div>
+                <div class="stem">
+                    <div class="leaf left"></div>
+                    <div class="leaf right"></div>
+                </div>
+                <div class="center"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="final-message" id="final-message">
+        <p>Porque al igual que esta flor, mi amor por ti florece cada día más y más. ¡Te amo, Valeri! 💖</p>
+    </div>
+    
+    <div class="love-messages" id="love-messages-container"></div>
+    
+    <audio id="bg-music" loop>
+        <source src="EstoyEnamorado.mp3" type="audio/mpeg">
+    </audio>
+
+<script>
+    const startScreen = document.getElementById('start-screen');
+    const startButton = document.getElementById('start-button');
+    const mainContainer = document.getElementById('main-container');
+    const flowerContainer = document.getElementById('flower-container');
+    const finalMessage = document.getElementById('final-message');
+    const loveMessagesContainer = document.getElementById('love-messages-container');
+    const music = document.getElementById('bg-music');
+
+    const loveMessages = [
+        "💛 Eres mi sol en cada mañana 💛", "🌟 Tu sonrisa ilumina mis días 🌟", "💫 Contigo cada momento es mágico 💫", "🌻 Eres mi flor más preciada y hermosa 🌻", "💖 Te amo más de lo que las palabras pueden decir 💖", "✨ Eres la razón de mi felicidad ✨", "🌸 Tu amor me da fuerzas para todo 🌸", "💖 Eres mi mundo entero, Valeri 💖", "🌺 Contigo soy la mejor versión de mí 🌺", "💝 Mi corazón te pertenece por completo 💝", "🌷 Eres mi sueño hecho realidad, mi amor 🌷", "💕 Tu risa es la melodía más hermosa 💕", "🌼 Cada día a tu lado es una bendición 🌼", "💗 Eres mi inspiración constante 💗", "🌹 Tu belleza me cautiva y me enamora 🌹", "💘 Juntos somos el equipo perfecto 💘", "🌻 Eres mi refugio en la tormenta 🌻", "💞 Tu amor transforma mi vida 💖", "🌸 Eres mi paz y mi alegría infinita 🌸", "💛 Contigo, el mundo es un lugar mejor 💛", "🌺 Tu mirada me hace suspirar cada vez 🌺", "💖 Eres mi destino y mi camino 💖", "🌷 Mi amor por ti no tiene límites, Valeri 🌷", "💝 Eres el tesoro más grande que tengo 💝", "🌼 Tu amor es el hogar al que siempre quiero volver 🌼", "✨ Cada instante contigo es un regalo del cielo ✨", "💖 Eres la estrella que guía mi camino 💖", "🌻 Mi amor por ti florece sin parar 🌻", "💞 En tus brazos encuentro mi felicidad 💞", "🌟 Eres el brillo más hermoso de mi vida 🌟", "💛 Mi corazón late fuerte por ti 💛", "🌸 Valeri, eres simplemente perfecta 🌸", "🌹 Adoro cada pequeño detalle de ti 🌹", "💫 Eres mi universo, mi todo 💫", "💖 Siempre seré tuyo/a 💖", "🌷 Contigo la vida es una aventura 🌷", "💞 Gracias por existir, mi amor 💞", "🌻 Eres mi alegría, mi pasión 🌻", "💛 No hay nadie como tú, Valeri 💛", "💖 Mi amor crece por ti sin medida 💖", "🌟 Eres el sol que ilumina mi ser 🌟", "🌸 En cada flor veo tu hermosura 🌸", "🌹 Eres mi razón de ser y de amar 🌹", "💫 Eres la melodía de mi alma 💫", "💖 Siempre juntos, mi Valeri 💖", "🌷 Tu presencia lo cambia todo para bien 🌷", "💞 Mi amor por ti es eterno 💞", "🌻 Eres mi mayor anhelo 🌻", "💛 Contigo a mi lado, todo es posible 💛", "💖 Eres mi confidente y mi mejor amiga/o 💖", "🌟 Simplemente, te adoro 🌟", "🌸 Eres lo más bello de mi existencia 🌸", "🌹 Tus ojos son mi cielo 🌹", "💫 Mi corazón danza cuando te ve 💫", "💖 Mi vida es mejor contigo 💖", "🌷 Cada día un nuevo motivo para amarte 🌷", "💞 Tu esencia me envuelve 💞", "🌻 Eres mi inspiración y mi musa 🌻", "💛 Tú y yo, para siempre 💛", "💖 Te elegiría mil veces más 💖", "🌟 Mi vida no sería lo mismo sin ti 🌟", "🌸 Gracias por cada sonrisa 🌸", "🌹 Eres mi poema favorito 🌹", "💫 Te llevo en mi pensamiento 💫", "💖 Eres mi alma gemela 💖", "🌷 Eres la persona que más amo 🌷", "💞 Mi amor, mi alegría, mi Valeri 💞", "🌻 Eres un regalo del universo 🌻", "💛 Contigo hasta el infinito y más allá 💛", "💖 Eres mi cuento de hadas hecho realidad 💖", "🌟 En cada mirada, me pierdo en ti 🌟", "🌸 Tu amor es mi combustible 🌸", "🌹 Eres la flor más exótica y única 🌹", "💫 Mi vida es una sinfonía contigo 💫", "💖 Eres mi ancla en el mar 💖", "🌷 Cada latido es por ti 🌷", "💞 Eres el sí de mi vida 💞", "🌻 Mi amor por ti es un campo de girasoles 🌻", "💛 Eres mi adicción más bella 💛", "💖 Te doy mi amor incondicional 💖", "🌟 Mi felicidad se escribe con tu nombre 🌟", "🌸 Eres mi aire, mi respirar 🌸", "🌹 Cada momento a tu lado es un tesoro 🌹", "💫 Eres la chispa de mi existencia 💫", "💖 Mi amor por ti es un universo 💖", "🌷 Eres el deseo que se hizo realidad 🌷", "💞 Estoy tan agradecido/a por ti 💞", "🌻 Valeri, eres mi mundo 🌻", "💛 Mis ojos solo te ven a ti 💛", "💖 Eres mi razón de ser 💖", "🌟 Te amo en cada una de tus formas 🌟", "🌸 Tu esencia es pura magia 🌸", "🌹 Me has robado el corazón 🌹", "💫 Contigo el tiempo se detiene 💫", "💖 Eres el amor de mi vida 💖", "🌷 Mi alma te reconoce 🌷", "💞 Siempre en mi mente y corazón 💞", "🌻 Eres mi pedacito de cielo 🌻", "💛 Te elijo hoy y siempre 💛", "💖 Eres la respuesta a todas mis oraciones 💖", "🌟 Te mereces toda la felicidad del mundo 🌟", "🌸 Mi amor, mi compañera, mi Valeri 🌸", "🌹 Eres la fuerza que me impulsa 🌹", "💫 Eres mi luz en la oscuridad 💫", "💖 Eres el sueño más hermoso 💖", "🌷 Tu existencia es un milagro 🌷", "💞 Eres mi todo, mi siempre 💞", "🌻 Mi vida es más bella contigo 🌻",
+    ];
+
+    // --- NUEVO SISTEMA DE CARRILES PARA MENSAJES ---
+    const numLanes = 5; // Número de carriles verticales para los mensajes
+    const lanes = new Array(numLanes).fill(false); // false = carril libre, true = carril ocupado
+
+    function getRandomNumber(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function createLoveMessage() {
+        // Encontrar un carril libre
+        const availableLanes = lanes.map((status, index) => status ? -1 : index).filter(index => index !== -1);
+        
+        if (availableLanes.length === 0) {
+            // Si todos los carriles están ocupados, esperar al siguiente intervalo
+            return;
+        }
+
+        const laneIndex = availableLanes[Math.floor(Math.random() * availableLanes.length)];
+        lanes[laneIndex] = true; // Marcar el carril como ocupado
+
+        const message = document.createElement('div');
+        message.classList.add('love-message');
+        message.innerHTML = loveMessages[Math.floor(Math.random() * loveMessages.length)];
+        
+        // Calcular la posición horizontal basada en el carril
+        const laneWidth = 100 / numLanes;
+        const leftPosition = (laneIndex * laneWidth) + (laneWidth / 4); // Centrar un poco en el carril
+        message.style.left = `${leftPosition}%`;
+        
+        // --- VELOCIDAD MODERADA ---
+        const duration = getRandomNumber(25, 40); // Duración más larga para una caída más lenta
+        message.style.animationDuration = `${duration}s`;
+
+        loveMessagesContainer.appendChild(message);
+
+        message.addEventListener('animationend', () => {
+            message.remove();
+            lanes[laneIndex] = false; // Liberar el carril cuando la animación termina
+        });
+    }
+
+    function startContinuousEffects() {
+        setInterval(createLoveMessage, 2500); // Genera un mensaje cada 2.5 segundos para no saturar
+    }
+
+    startButton.addEventListener('click', () => {
+        startScreen.style.opacity = '0';
+        startScreen.style.pointerEvents = 'none';
+        mainContainer.classList.add('visible');
+        music.play().catch(() => {});
+        startContinuousEffects();
+    });
+
+    flowerContainer.addEventListener('click', () => {
+        finalMessage.style.opacity = '1';
+        finalMessage.style.transform = 'translate(-50%, -50%) scale(1)';
+        finalMessage.style.pointerEvents = 'auto';
+
+        setTimeout(() => {
+            finalMessage.style.opacity = '0';
+            finalMessage.style.transform = 'translate(-50%, -50%) scale(0.5)';
+            finalMessage.style.pointerEvents = 'none';
+        }, 8000);
+    });
+</script>
+
+</body>
+</html>
